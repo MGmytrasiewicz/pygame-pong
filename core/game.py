@@ -3,6 +3,8 @@ import config
 from core.ball import Ball
 from core.paddle import Paddle
 from enum import Enum, auto
+import os
+import csv
 
 class GameState(Enum):
     WELCOME = auto()
@@ -33,6 +35,8 @@ class Game:
         self.lives = 3
         self.sound_welcome = pygame.mixer.Sound(config.SOUND_WELCOME)
         self.welcome_played = False
+        self.log_file_path = "./data/game_log.csv"
+        self._init_logger()
 
     def _draw_borders(self):
         # Draw the game borders
@@ -40,12 +44,13 @@ class Game:
         pygame.draw.rect(self.surface, config.WHITE, pygame.Rect(0, config.SCREEN_HEIGHT - config.BORDER, config.SCREEN_WIDTH, config.BORDER))  # Bottom border
         pygame.draw.rect(self.surface, config.WHITE, pygame.Rect(0, 0, config.BORDER, config.SCREEN_HEIGHT))  # Left border
 
-    def update(self):
+    def update(self) -> None:
         """
         Update the game state and handle collisions.
 
         - Updates paddle position.
         - Moves the ball.
+        - Saves frame data to CSV log.
         - Detects bounces and misses.
         - Triggers game over if lives are exhausted.
         """
@@ -55,6 +60,7 @@ class Game:
             return  # No updates in welcome state        
         self.paddle.update()
         # Capture ball return value (did bounce? or missed?)
+        self._log_frame()  # Log current frame data
         result = self.ball.update(self.paddle)
 
         if result == "BOUNCE":
@@ -156,3 +162,14 @@ class Game:
 
         self.surface.blit(score_text, (config.BORDER + 10, config.BORDER + 10))
         self.surface.blit(lives_text, (config.SCREEN_WIDTH - lives_text.get_width() - config.BORDER - 10, config.BORDER + 10))
+
+    def _init_logger(self):
+        # Initialize the logger by creating the log file with headers if it doesn't exist
+        os.makedirs(os.path.dirname(self.log_file_path), exist_ok=True)
+        self.log_file = open(self.log_file_path, mode='w', newline='')
+        self.log_writer = csv.writer(self.log_file)
+        self.log_writer.writerow(["ball_x", "ball_y", "ball_vx", "ball_vy", "paddle_y"])
+
+    def _log_frame(self):
+        # Log the current frame data to the CSV file
+        self.log_writer.writerow([self.ball.x, self.ball.y, self.ball.vx, self.ball.vy, self.paddle.y])

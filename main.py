@@ -3,7 +3,7 @@ import config
 from core.game import Game
 
 # Main function to run the game
-def main():
+def main() -> None:
     """
     Entry point for the Pong game.
 
@@ -36,6 +36,9 @@ def main():
         pygame.display.flip()
         clock.tick(config.FPS)
 
+    # Close the log file and exit
+    if hasattr(game, 'log_file'):
+        game.log_file.close()
     pygame.quit()
 
 if __name__ == "__main__":
