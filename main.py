@@ -23,23 +23,24 @@ def main() -> None:
     clock = pygame.time.Clock()
     game = Game(screen)
 
-    # Main loop to keep the window open
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            game.handle_event(event)
-        
-        game.update()
-        game.render()
-        pygame.display.flip()
-        clock.tick(config.FPS)
+    try:
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                game.handle_event(event)
+            
+            game.update()
+            game.render()
+            pygame.display.flip()
+            clock.tick(config.FPS)
 
     # Close the log file and exit
-    if hasattr(game, 'log_file'):
-        game.log_file.close()
-    pygame.quit()
+    finally:
+        if hasattr(game, 'log_file'):
+            game.log_file.close()
+        pygame.quit()
 
 if __name__ == "__main__":
     main()

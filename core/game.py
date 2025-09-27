@@ -80,6 +80,10 @@ class Game:
         self.lives = 3
         self.ball.reset(self.paddle)
 
+        # Reset logging
+        self.log_file.close()
+        self._init_logger()
+
     def render(self):
         # Render the game objects and UI
 
